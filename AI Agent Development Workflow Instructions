@@ -1,0 +1,179 @@
+# AI Agent Development Workflow Instructions
+
+## Initial Setup Requirements
+
+1. Before starting any development work:
+   - Verify the current git branch (should be on `feature/[feature-name]` for new features)
+   - Check for any pending dependencies in `package.json`
+   - Review the current state in `ROADMAP.md`
+   - Ensure test environment is properly configured
+
+## Development Workflow
+
+### 1. Pre-Development Checklist
+- [ ] Review related items in `ROADMAP.md`
+- [ ] Create new feature branch if needed: `feature/[feature-name]`
+- [ ] Update task status in `ROADMAP.md` from 🔴 to 🟡
+- [ ] Check for required dependencies
+- [ ] Review existing tests related to the feature area
+
+### 2. Development Process
+For each development task:
+
+1. **Dependencies Management**
+   ```bash
+   # Before adding new code
+   - Check package.json for required dependencies
+   - Install new dependencies with exact versions
+   - Update package.json and package-lock.json
+   - Document new dependencies in README.md
+   ```
+
+2. **Code Implementation**
+   ```bash
+   # Follow these steps for each feature
+   - Implement feature following architecture guidelines
+   - Create/update necessary TypeScript types
+   - Add necessary comments and documentation
+   - Implement error handling
+   - Add logging where appropriate
+   ```
+
+3. **Testing Requirements**
+   ```bash
+   # Create tests before committing
+   - Write unit tests for new components
+   - Write integration tests for API endpoints
+   - Write E2E tests for critical flows
+   - Ensure test coverage meets requirements
+   - Run full test suite: npm test
+   ```
+
+### 3. Documentation Updates
+
+Update the following files when applicable:
+
+1. **README.md**
+   - New features or functionality
+   - Updated dependencies
+   - Changed configuration requirements
+   - New environment variables
+
+2. **ROADMAP.md**
+   - Update task status (🔴 → 🟡 → 🟢)
+   - Update progress percentages
+   - Add any new subtasks discovered
+   - Update completion dates
+
+3. **ARCHITECTURE.md**
+   - New components or services
+   - Changed architectural decisions
+   - New integration points
+   - Updated technical requirements
+
+### 4. Commit Guidelines
+
+Follow this process for each commit:
+
+```bash
+# 1. Stage changes
+git add [files]
+
+# 2. Commit with semantic message
+git commit -m "type(scope): description"
+
+# Types:
+# feat: New feature
+# fix: Bug fix
+# docs: Documentation only
+# test: Adding tests
+# chore: Maintenance tasks
+
+# 3. Update progress
+- Update ROADMAP.md with new progress
+- Mark tasks as complete
+- Update overall progress percentage
+```
+
+### 5. Pull Request Process
+
+Before creating a PR:
+- [ ] Run full test suite
+- [ ] Update all documentation
+- [ ] Verify ROADMAP.md is updated
+- [ ] Check for any new environment variables
+- [ ] Ensure code meets style guidelines
+- [ ] Verify all new dependencies are documented
+
+### 6. Continuous Integration
+
+After pushing changes:
+- Monitor CI/CD pipeline
+- Address any test failures
+- Fix linting issues
+- Update documentation if needed based on CI feedback
+
+## Phase-Specific Guidelines
+
+### Phase 1: Foundation
+- Ensure all basic configurations are documented
+- Set up comprehensive test framework
+- Document all environment variables
+- Create basic API documentation
+
+### Phase 2: Core Features
+- Implement feature flags for new capabilities
+- Document AI service configurations
+- Create user guides for new features
+- Add monitoring for AI services
+
+### Phase 3: Platform Integration
+- Document all API credentials needed
+- Create integration test suite
+- Document error handling for external services
+- Add monitoring for third-party services
+
+### Phase 4: Enhanced Features
+- Focus on performance optimization
+- Document mobile-specific features
+- Create advanced feature documentation
+- Add analytics tracking
+
+## Error Handling Guidelines
+
+1. Always implement proper error boundaries
+2. Log errors appropriately
+3. Provide user-friendly error messages
+4. Add error tracking for AI services
+5. Implement retry mechanisms for external services
+
+## Performance Guidelines
+
+1. Optimize image processing
+2. Implement proper caching
+3. Use lazy loading where appropriate
+4. Monitor API response times
+5. Optimize database queries
+
+## Security Guidelines
+
+1. Validate all inputs
+2. Sanitize data before storage
+3. Implement rate limiting
+4. Use proper authentication
+5. Follow OWASP guidelines
+
+## Monitoring and Logging
+
+1. Add appropriate log levels
+2. Implement performance monitoring
+3. Track AI service usage
+4. Monitor external API calls
+5. Track user interactions
+
+Remember to always:
+- Keep the codebase clean and documented
+- Maintain test coverage
+- Update documentation continuously
+- Follow security best practices
+- Monitor performance metrics
