@@ -1,0 +1,79 @@
+{
+  "name": "guilt-free-goods",
+  "version": "1.0.0",
+  "description": "AI-Powered Resale Management System",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "seed": "ts-node prisma/seed.ts",
+    "test:db:setup": "ts-node scripts/setup-test-db.ts setup",
+    "test:db:teardown": "ts-node scripts/setup-test-db.ts teardown",
+    "db:backup": "ts-node scripts/backup-db.ts create",
+    "db:backup:list": "ts-node scripts/backup-db.ts list",
+    "db:backup:restore": "ts-node scripts/backup-db.ts restore",
+    "db:backup:service": "ts-node scripts/cron-backup.ts",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint \"**/*.{ts,tsx,js,jsx}\"",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "build": "next build",
+    "dev": "next dev",
+    "start": "next start"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SketchClarkey/Guilt-Free-Goods.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SketchClarkey/Guilt-Free-Goods/issues"
+  },
+  "homepage": "https://github.com/SketchClarkey/Guilt-Free-Goods#readme",
+  "dependencies": {
+    "@auth/prisma-adapter": "^2.7.4",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/nodemailer": "^6.4.17",
+    "@types/react": "19.0.7",
+    "@types/react-dom": "19.0.3",
+    "bcryptjs": "^2.4.3",
+    "eslint": "9.18.0",
+    "next": "15.1.4",
+    "next-auth": "^4.24.11",
+    "node-cron": "^3.0.3",
+    "nodemailer": "^6.9.16",
+    "prettier": "3.4.2",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "winston": "^3.17.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.18.0",
+    "@next/eslint-plugin-next": "^15.1.4",
+    "@prisma/client": "^6.2.1",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.2.0",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^22.10.7",
+    "@types/node-cron": "^3.0.11",
+    "@typescript-eslint/eslint-plugin": "^8.20.0",
+    "@typescript-eslint/parser": "^8.20.0",
+    "dotenv": "^16.4.7",
+    "eslint-plugin-react": "^7.37.4",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "node-mocks-http": "^1.12.1",
+    "prisma": "^6.2.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.3"
+  },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  }
+}
