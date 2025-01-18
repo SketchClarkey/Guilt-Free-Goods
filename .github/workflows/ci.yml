@@ -1,0 +1,184 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Check types
+      run: npm run type-check || exit 1
+      
+    - name: Run linter
+      run: npm run lint
+      
+    - name: Check formatting
+      run: npm run format:check || exit 1
+
+    - name: Check commit messages
+      uses: wagoid/commitlint-github-action@v5
+
+  test:
+    needs: validate
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Run database migrations
+      run: npx prisma migrate deploy
+      env:
+        DATABASE_URL: postgresql://test:test@localhost:5432/test?schema=public
+        
+    - name: Run unit tests
+      run: npm test -- --coverage
+      env:
+        DATABASE_URL: postgresql://test:test@localhost:5432/test?schema=public
+        NODE_ENV: test
+        
+    - name: Start app for E2E tests
+      run: npm run build && npm start &
+      env:
+        DATABASE_URL: postgresql://test:test@localhost:5432/test?schema=public
+        NODE_ENV: test
+        
+    - name: Run E2E tests
+      run: npm run test:e2e
+      env:
+        DATABASE_URL: postgresql://test:test@localhost:5432/test?schema=public
+        NODE_ENV: test
+        
+    - name: Upload unit test coverage
+      uses: codecov/codecov-action@v3
+      with:
+        flags: unit
+        
+    - name: Upload E2E test coverage
+      uses: codecov/codecov-action@v3
+      with:
+        flags: e2e
+        
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-results
+        path: |
+          coverage/
+          cypress/videos/
+          cypress/screenshots/
+      
+  security:
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Run security audit
+      run: npm audit
+      
+    - name: Check for known vulnerabilities
+      uses: snyk/actions/node@master
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        
+  build:
+    needs: [test, security]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build
+      run: npm run build
+      
+    - name: Cache build output
+      uses: actions/cache@v3
+      with:
+        path: .next
+        key: ${{ runner.os }}-nextjs-${{ github.sha }}
+        
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Restore build cache
+      uses: actions/cache@v3
+      with:
+        path: .next
+        key: ${{ runner.os }}-nextjs-${{ github.sha }}
+        
+    # Deployment steps will be added when ready
+    - name: Deploy
+      run: echo "Deployment configuration pending"
+      env:
+        # Add your deployment environment variables here
+        NODE_ENV: production 

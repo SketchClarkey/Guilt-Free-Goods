@@ -1,0 +1,122 @@
+{
+  "name": "guilt-free-goods",
+  "version": "1.0.0",
+  "description": "AI-Powered Resale Management System",
+  "main": "index.js",
+  "type": "commonjs",
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:e2e": "cypress run",
+    "test:e2e:open": "cypress open",
+    "seed": "ts-node prisma/seed.ts",
+    "test:db:setup": "ts-node scripts/setup-test-db.ts setup",
+    "test:db:teardown": "ts-node scripts/setup-test-db.ts teardown",
+    "db:backup": "ts-node scripts/backup-db.ts create",
+    "db:backup:list": "ts-node scripts/backup-db.ts list",
+    "db:backup:restore": "ts-node scripts/backup-db.ts restore",
+    "db:backup:service": "ts-node scripts/cron-backup.ts",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint \"**/*.{ts,tsx,js,jsx}\"",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "build": "next build",
+    "dev": "next dev",
+    "start": "next start",
+    "prepare": "husky install",
+    "check-updates": "npx npm-check-updates",
+    "update-deps": "npx npm-check-updates -u && npm install"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SketchClarkey/Guilt-Free-Goods.git"
+  },
+  "keywords": [
+    "ecommerce",
+    "resale",
+    "ai",
+    "marketplace"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SketchClarkey/Guilt-Free-Goods/issues"
+  },
+  "homepage": "https://github.com/SketchClarkey/Guilt-Free-Goods#readme",
+  "dependencies": {
+    "@auth/prisma-adapter": "2.7.4",
+    "@next-auth/prisma-adapter": "1.0.7",
+    "@prisma/client": "5.10.2",
+    "@types/bcryptjs": "2.4.6",
+    "@types/nodemailer": "6.4.17",
+    "@types/react": "18.2.64",
+    "@types/react-dom": "18.2.21",
+    "bcryptjs": "2.4.3",
+    "eslint": "8.57.0",
+    "next": "14.1.3",
+    "next-auth": "4.24.11",
+    "node-cron": "3.0.3",
+    "nodemailer": "6.9.16",
+    "prettier": "3.2.5",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "winston": "3.11.0",
+    "zod": "3.22.4"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "19.0.3",
+    "@commitlint/config-conventional": "19.0.3",
+    "@cypress/code-coverage": "3.12.32",
+    "@eslint/js": "8.57.0",
+    "@next/eslint-plugin-next": "14.1.3",
+    "@testing-library/jest-dom": "6.4.2",
+    "@testing-library/react": "14.2.1",
+    "@testing-library/user-event": "14.5.2",
+    "@types/jest": "29.5.12",
+    "@types/jsonwebtoken": "9.0.7",
+    "@types/node": "20.11.24",
+    "@types/node-cron": "3.0.11",
+    "@typescript-eslint/eslint-plugin": "7.1.1",
+    "@typescript-eslint/parser": "7.1.1",
+    "cypress": "13.6.6",
+    "dotenv": "16.4.5",
+    "eslint-config-prettier": "9.1.0",
+    "eslint-plugin-cypress": "2.15.1",
+    "eslint-plugin-jest": "27.9.0",
+    "eslint-plugin-react": "7.33.2",
+    "eslint-plugin-react-hooks": "4.6.0",
+    "husky": "9.0.11",
+    "jest": "29.7.0",
+    "jest-environment-jsdom": "29.7.0",
+    "jest-junit": "16.0.0",
+    "jsonwebtoken": "9.0.2",
+    "lint-staged": "15.2.2",
+    "msw": "2.2.2",
+    "node-mocks-http": "1.14.1",
+    "prisma": "5.10.2",
+    "ts-jest": "29.1.2",
+    "ts-node": "10.9.2",
+    "typescript": "5.3.3"
+  },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yml}": [
+      "prettier --write"
+    ]
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
+  },
+  "msw": {
+    "workerDirectory": "public"
+  }
+}

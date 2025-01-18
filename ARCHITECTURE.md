@@ -33,6 +33,59 @@
 - Shipping services
 - Cloud storage
 
+## API Layer
+
+### Item Management
+The Item Management system follows a RESTful API design pattern with the following components:
+
+#### API Endpoints
+- `GET /api/items`: List items with pagination and filtering
+- `POST /api/items`: Create new items with validation
+- `GET /api/items/[id]`: Retrieve specific items
+- `PUT /api/items/[id]`: Update items with validation
+- `DELETE /api/items/[id]`: Delete items with authorization
+
+#### Data Models
+```typescript
+// Item Model
+interface Item {
+  id: string;
+  title: string;
+  description?: string;
+  condition: ItemCondition;
+  brand?: string;
+  sku?: string;
+  status: ItemStatus;
+  userId: string;
+  categoryId: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Enums
+enum ItemCondition {
+  NEW = 'NEW',
+  LIKE_NEW = 'LIKE_NEW',
+  VERY_GOOD = 'VERY_GOOD',
+  GOOD = 'GOOD',
+  ACCEPTABLE = 'ACCEPTABLE',
+  FOR_PARTS = 'FOR_PARTS'
+}
+
+enum ItemStatus {
+  DRAFT = 'DRAFT',
+  ACTIVE = 'ACTIVE',
+  SOLD = 'SOLD',
+  ARCHIVED = 'ARCHIVED'
+}
+```
+
+#### Security
+- All endpoints require authentication
+- Items are scoped to the authenticated user
+- Input validation using Zod schemas
+- Error handling with appropriate status codes
+
 ## Development Guidelines
 
 ### Code Organization

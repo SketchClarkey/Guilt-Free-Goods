@@ -1,213 +1,152 @@
-# Guilt-Free-Goods
-AI-Powered Resale Management System
+# Guilt Free Goods
 
-Core Application Purpose
-A full-stack web application designed to automate and streamline the process of listing and selling second-hand goods across multiple marketplaces, leveraging AI for item identification, pricing optimization, and automated listing management.
-Core System Features
-1. Dashboard & Item Upload System
+An AI-Powered Resale Management System that helps you manage and optimize your resale business across multiple platforms.
 
-Centralized dashboard for business management
-Bulk photo upload (up to 20 images per item)
-Optional manual input fields for additional details
-Drag-and-drop interface
-Smart photo management with:
+## Features
 
-Automatic photo quality assessment
-Image optimization for each platform
-Duplicate photo detection
-Auto-cropping and orientation correction
-Best photo order suggestion
+- Multi-platform listing management
+- AI-powered image processing and optimization
+- Smart pricing recommendations
+- Automated inventory tracking
+- Integrated shipping management
+- Analytics and reporting
 
+## Prerequisites
 
-Template system for similar items
-Voice-to-text description input
-Previous listing template library
+- Node.js v18+
+- PostgreSQL v14+
+- Python 3.8+ (for AI services)
+- Docker
+- AWS Account
 
-2. Enhanced Photography Tools
+## Getting Started
 
-AI-powered photo enhancement
+1. Clone the repository:
+```bash
+git clone https://github.com/SketchClarkey/Guilt-Free-Goods.git
+cd Guilt-Free-Goods
+```
 
-Automatic lighting adjustment
-Color correction and balance
-Contrast optimization
-Sharpness enhancement
-Noise reduction
+2. Install dependencies:
+```bash
+npm install
+```
 
+3. Set up environment variables:
+- Copy `.env.example` to `.env`
+- Fill in required credentials and configuration
 
-Professional presentation features
+4. Initialize database:
+```bash
+npx prisma db push
+```
 
-Automated background removal
-Consistent background application
-Watermark automation
-Product highlight enhancement
-Batch processing
+5. Start development server:
+```bash
+npm run dev
+```
 
+## Project Structure
 
-Advanced imaging capabilities
+```
+guilt-free-goods/
+├── src/
+│   ├── components/     # React components
+│   ├── pages/         # Next.js pages
+│   ├── utils/         # Utility functions
+│   ├── services/      # Business logic
+│   └── types/         # TypeScript types
+├── prisma/           # Database schema
+├── public/           # Static assets
+└── tests/           # Test files
+```
 
-Multi-angle view compilation
-Detail shot optimization
-Flaw/damage representation
-Size reference overlay
-Brand/label enhancement
+## Available Scripts
 
+- `npm run dev` - Start development server
+- `npm run build` - Build production bundle
+- `npm start` - Start production server
+- `npm test` - Run tests
+- `npm run lint` - Run linter
+- `npm run format` - Format code
 
+## Contributing
 
-3. AI-Powered Item Analysis
+1. Create a feature branch
+2. Commit changes
+3. Push to the branch
+4. Create a Pull Request
 
-Automated image analysis for:
+## License
 
-Product type and category
-Brand identification
-Condition assessment
-Text recognition
-Material identification
-Product measurements estimation
+This project is licensed under the ISC License.
 
+## Support
 
-Cross-reference with product databases
-Manufacturer and origin identification
-Product history compilation
-Damage/wear detection
-Age estimation
-Pattern and style recognition
-Serial number validation
+For support, email support@guiltfreegoods.com or join our Slack channel.
 
-4. Smart Pricing System
+## API Endpoints
 
-Market research automation
-Real-time market analysis pricing with:
+### Items API
 
-Dynamic price adjustments
-View count consideration
-Similar item sales velocity
-Platform-specific trends
+#### GET /api/items
+Retrieves all items for the authenticated user.
 
+**Response**
+```json
+[
+  {
+    "id": "string",
+    "title": "string",
+    "description": "string?",
+    "condition": "NEW | LIKE_NEW | VERY_GOOD | GOOD | ACCEPTABLE | FOR_PARTS",
+    "brand": "string?",
+    "sku": "string?",
+    "category": {
+      "id": "string",
+      "name": "string"
+    },
+    "images": [{
+      "url": "string",
+      "isPrimary": true
+    }]
+  }
+]
+```
 
-Competitive positioning features
+#### POST /api/items
+Creates a new item.
 
-Automated competitor tracking
-Price gap analysis
-Market position optimization
-Platform fee consideration
+**Request Body**
+```json
+{
+  "title": "string",
+  "description": "string?",
+  "condition": "NEW | LIKE_NEW | VERY_GOOD | GOOD | ACCEPTABLE | FOR_PARTS",
+  "brand": "string?",
+  "sku": "string?",
+  "categoryId": "string"
+}
+```
 
+#### GET /api/items/[id]
+Retrieves a specific item by ID.
 
-Strategic price management
+#### PUT /api/items/[id]
+Updates a specific item.
 
-Automated markdown scheduling
-Peak selling time pricing
-Bundle pricing optimization
-Profit margin maintenance
+**Request Body**
+```json
+{
+  "title": "string?",
+  "description": "string?",
+  "condition": "NEW | LIKE_NEW | VERY_GOOD | GOOD | ACCEPTABLE | FOR_PARTS"?,
+  "brand": "string?",
+  "sku": "string?",
+  "categoryId": "string?",
+  "status": "DRAFT | ACTIVE | SOLD | ARCHIVED"?
+}
+```
 
-
-
-5. Multi-Platform Integration
-
-Marketplace compatibility verification
-Automated listing creation for:
-
-eBay
-Facebook Marketplace
-Etty
-WooCommerce
-Additional marketplaces
-
-
-Platform-specific listing optimization
-Automatic synchronization
-Cross-platform inventory management
-Performance tracking across platforms
-
-6. Listing Management & Automation
-
-Automated price adjustment
-Listing renewal and optimization
-Cross-platform inventory synchronization
-Automatic relisting with updated analysis
-Real-time status tracking
-A/B testing capabilities
-Multi-variation listing support
-
-7. Unified Communication Hub
-
-Centralized messaging system
-Integration with marketplace messaging systems
-Automated response suggestions
-Customer inquiry tracking
-Message history logging
-Priority message flagging
-Response time tracking
-
-8. Mobile Features
-
-Streamlined mobile listing creation
-
-Quick-capture photo mode
-Voice-to-text descriptions
-Barcode/QR scanning
-Rapid listing templates
-
-
-Real-time notifications for:
-
-New messages
-Sales alerts
-Price changes
-Listing performance
-Shipping deadlines
-
-
-Mobile-optimized tools
-
-On-the-go image editing
-Quick price adjustments
-Order processing
-Label generation
-Message response system
-
-
-
-9. Sales Processing
-
-Instant cross-platform inventory updates
-Automated order processing
-Shipping provider integration:
-
-Australia Post API
-Additional courier services for bulky items
-
-
-Automated shipping label generation
-Real-time shipping cost calculation
-Order status tracking
-Multi-package shipment optimization
-Return label generation
-
-10. Analytics & Reporting
-
-Sales performance metrics
-Platform-specific analytics
-Pricing strategy effectiveness
-Item category performance
-Time-to-sell metrics
-Profit margin analysis
-Revenue forecasting
-Platform ROI comparison
-
-Technical Requirements
-Integration Requirements
-
-Marketplace APIs
-Payment gateway integration
-Shipping carrier APIs
-AI/ML services for image analysis
-Cloud storage for images and data
-Database management system
-
-Security Features
-
-Secure user authentication
-Data encryption
-Secure payment processing
-API key management
-Regular security audits
+#### DELETE /api/items/[id]
+Deletes a specific item.
