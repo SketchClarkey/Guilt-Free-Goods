@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "AI-Powered Resale Management System",
   "main": "index.js",
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
     "test": "jest",
     "test:watch": "jest --watch",

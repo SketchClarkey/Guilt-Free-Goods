@@ -42,9 +42,9 @@ Setup core project infrastructure and basic functionality.
 ## Phase 2: Core Features
 Implementation of essential features for basic functionality.
 
-### 2.1 Item Management System [0%]
-- [ ] Create item model
-- [ ] Implement CRUD operations
+### 2.1 Item Management System [🟡 In Progress]
+- [x] Create item model
+- [x] Implement CRUD operations
 - [ ] Add image upload functionality
 - [ ] Create item listing form
 - [ ] Implement item search

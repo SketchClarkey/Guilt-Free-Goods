@@ -84,3 +84,69 @@ This project is licensed under the ISC License.
 ## Support
 
 For support, email support@guiltfreegoods.com or join our Slack channel.
+
+## API Endpoints
+
+### Items API
+
+#### GET /api/items
+Retrieves all items for the authenticated user.
+
+**Response**
+```json
+[
+  {
+    "id": "string",
+    "title": "string",
+    "description": "string?",
+    "condition": "NEW | LIKE_NEW | VERY_GOOD | GOOD | ACCEPTABLE | FOR_PARTS",
+    "brand": "string?",
+    "sku": "string?",
+    "category": {
+      "id": "string",
+      "name": "string"
+    },
+    "images": [{
+      "url": "string",
+      "isPrimary": true
+    }]
+  }
+]
+```
+
+#### POST /api/items
+Creates a new item.
+
+**Request Body**
+```json
+{
+  "title": "string",
+  "description": "string?",
+  "condition": "NEW | LIKE_NEW | VERY_GOOD | GOOD | ACCEPTABLE | FOR_PARTS",
+  "brand": "string?",
+  "sku": "string?",
+  "categoryId": "string"
+}
+```
+
+#### GET /api/items/[id]
+Retrieves a specific item by ID.
+
+#### PUT /api/items/[id]
+Updates a specific item.
+
+**Request Body**
+```json
+{
+  "title": "string?",
+  "description": "string?",
+  "condition": "NEW | LIKE_NEW | VERY_GOOD | GOOD | ACCEPTABLE | FOR_PARTS"?,
+  "brand": "string?",
+  "sku": "string?",
+  "categoryId": "string?",
+  "status": "DRAFT | ACTIVE | SOLD | ARCHIVED"?
+}
+```
+
+#### DELETE /api/items/[id]
+Deletes a specific item.
