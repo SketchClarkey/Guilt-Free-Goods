@@ -45,12 +45,17 @@ Implementation of essential features for basic functionality.
 ### 2.1 Item Management System [🟡 In Progress]
 - [x] Create item model
 - [x] Implement CRUD operations
+- [x] Add API documentation
+- [x] Add unit tests for CRUD operations
 - [ ] Add image upload functionality
 - [ ] Create item listing form
-- [ ] Implement item search
-- [ ] Add filtering capabilities
 - [ ] Create item preview
 - [ ] Set up item validation
+- [🟡] Add integration tests for auth system (In Progress)
+- [🟡] Add middleware tests (In Progress)
+- [🟡] Add protected routes tests (In Progress)
+- [ ] Implement item search
+- [ ] Add filtering capabilities
 
 ### 2.2 Enhanced Photography System [0%]
 - [ ] Set up image processing service

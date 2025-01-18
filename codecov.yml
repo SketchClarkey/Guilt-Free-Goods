@@ -1,0 +1,38 @@
+coverage:
+  status:
+    project:
+      default:
+        target: 80%
+        threshold: 2%
+    patch:
+      default:
+        target: 80%
+        threshold: 2%
+
+flags:
+  unit:
+    paths:
+      - src/
+    carryforward: true
+  e2e:
+    paths:
+      - src/
+    carryforward: true
+
+comment:
+  layout: "reach, diff, flags, files"
+  behavior: default
+  require_changes: false
+  require_base: false
+  require_head: true
+
+ignore:
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/*.spec.tsx"
+  - "**/*.d.ts"
+  - "cypress/"
+  - "coverage/"
+  - ".next/"
+  - "node_modules/" 

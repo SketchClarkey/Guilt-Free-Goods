@@ -1,167 +1,104 @@
-import { PrismaClient, UserRole, Condition, ItemStatus, Platform, ListingStatus, PriceType } from '@prisma/client';
-import * as bcrypt from 'bcryptjs';
+import { PrismaClient, UserRole, ItemCondition, ItemStatus, Platform, ListingStatus, PriceType } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
 async function main() {
-  // Create admin user
-  const adminPassword = await bcrypt.hash('admin123', 10);
-  // @ts-ignore - admin user is created for seeding purposes
-  const _admin = await prisma.user.create({
-    data: {
-      email: 'admin@guiltfreegoods.com',
-      name: 'Admin User',
-      password: adminPassword,
-      role: UserRole.ADMIN,
-      emailVerified: new Date(),
-    },
-  });
-
   // Create test user
-  const userPassword = await bcrypt.hash('user123', 10);
   const user = await prisma.user.create({
     data: {
-      email: 'user@example.com',
+      email: 'test@example.com',
       name: 'Test User',
-      password: userPassword,
+      password: '$2a$12$k8Y1THPD8KYhBDwbZL1EJeYn/TZdtv7RKt8R9HrjzJsl6ANQnwv2.', // 'password123'
       role: UserRole.USER,
-      emailVerified: new Date(),
     },
   });
 
   // Create categories
-  const clothing = await prisma.category.create({
-    data: {
-      name: 'Clothing',
-      description: 'All types of clothing items',
-    },
-  });
-
-  const electronics = await prisma.category.create({
+  const electronicsCategory = await prisma.category.create({
     data: {
       name: 'Electronics',
       description: 'Electronic devices and accessories',
     },
   });
 
-  // Create subcategories
-  const shirts = await prisma.category.create({
+  const clothingCategory = await prisma.category.create({
     data: {
-      name: 'Shirts',
-      description: 'All types of shirts',
-      parentId: clothing.id,
-    },
-  });
-
-  const phones = await prisma.category.create({
-    data: {
-      name: 'Phones',
-      description: 'Mobile phones and accessories',
-      parentId: electronics.id,
+      name: 'Clothing',
+      description: 'Apparel and accessories',
     },
   });
 
   // Create test items
-  // @ts-ignore - test items are created for seeding purposes
-  const _shirt = await prisma.item.create({
+  const phone = await prisma.item.create({
     data: {
-      title: 'Vintage T-Shirt',
-      description: 'A classic vintage t-shirt in excellent condition',
-      condition: Condition.VERY_GOOD,
-      brand: 'Nike',
-      sku: 'VTS001',
-      userId: user.id,
-      categoryId: shirts.id,
+      title: 'iPhone 13',
+      description: 'Excellent condition, barely used',
+      condition: ItemCondition.LIKE_NEW,
+      price: 800.00,
       status: ItemStatus.ACTIVE,
+      userId: user.id,
+      categoryId: electronicsCategory.id,
       images: {
-        create: [
-          {
-            url: 'https://example.com/shirt1.jpg',
-            isPrimary: true,
-            order: 1,
-          },
-        ],
-      },
-      prices: {
-        create: [
-          {
-            amount: 25.00,
-            currency: 'AUD',
-            type: PriceType.PURCHASE,
-          },
-          {
-            amount: 45.00,
-            currency: 'AUD',
-            type: PriceType.LISTING,
-          },
-        ],
+        create: [{
+          url: 'https://example.com/iphone13.jpg',
+          isPrimary: true,
+        }],
       },
       listings: {
-        create: [
-          {
-            platform: Platform.EBAY,
-            status: ListingStatus.ACTIVE,
-            price: 45.00,
-            userId: user.id,
-          },
-        ],
+        create: [{
+          platform: Platform.EBAY,
+          status: ListingStatus.ACTIVE,
+          userId: user.id,
+        }],
+      },
+      prices: {
+        create: [{
+          amount: 800.00,
+          type: PriceType.LISTING,
+          currency: 'USD',
+        }],
       },
     },
   });
 
-  // @ts-ignore - test items are created for seeding purposes
-  const _phone = await prisma.item.create({
+  const jacket = await prisma.item.create({
     data: {
-      title: 'iPhone 12',
-      description: 'Used iPhone 12 in good condition',
-      condition: Condition.GOOD,
-      brand: 'Apple',
-      sku: 'IP12001',
-      userId: user.id,
-      categoryId: phones.id,
+      title: 'Leather Jacket',
+      description: 'Vintage leather jacket',
+      condition: ItemCondition.GOOD,
+      price: 150.00,
       status: ItemStatus.ACTIVE,
+      userId: user.id,
+      categoryId: clothingCategory.id,
       images: {
-        create: [
-          {
-            url: 'https://example.com/iphone1.jpg',
-            isPrimary: true,
-            order: 1,
-          },
-        ],
-      },
-      prices: {
-        create: [
-          {
-            amount: 400.00,
-            currency: 'AUD',
-            type: PriceType.PURCHASE,
-          },
-          {
-            amount: 650.00,
-            currency: 'AUD',
-            type: PriceType.LISTING,
-          },
-        ],
+        create: [{
+          url: 'https://example.com/jacket.jpg',
+          isPrimary: true,
+        }],
       },
       listings: {
-        create: [
-          {
-            platform: Platform.FACEBOOK,
-            status: ListingStatus.ACTIVE,
-            price: 650.00,
-            userId: user.id,
-          },
-        ],
+        create: [{
+          platform: Platform.FACEBOOK,
+          status: ListingStatus.ACTIVE,
+          userId: user.id,
+        }],
+      },
+      prices: {
+        create: [{
+          amount: 150.00,
+          type: PriceType.LISTING,
+          currency: 'USD',
+        }],
       },
     },
   });
 
-  console.log('Seed data created successfully');
+  console.log('Database seeded successfully');
 }
 
 main()
   .catch((e) => {
-    console.error(e);
+    console.error('Error seeding database:', e);
     process.exit(1);
   })
   .finally(async () => {

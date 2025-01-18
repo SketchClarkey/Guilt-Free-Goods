@@ -1,35 +1,33 @@
 import { PrismaClient } from '@prisma/client';
 import { execSync } from 'child_process';
-import * as dotenv from 'dotenv';
-
-// Load test environment variables
-dotenv.config({ path: '.env.test' });
 
 const prisma = new PrismaClient();
 
-async function setupTestDatabase() {
+async function setupTestDb() {
   try {
-    // Create test database
-    console.log('Creating test database...');
-    execSync(
-      'psql -U postgres -c "DROP DATABASE IF EXISTS guilt_free_goods_test;" -c "CREATE DATABASE guilt_free_goods_test;"'
-    );
+    // Create test database and run migrations
+    execSync('npx prisma migrate reset --force --skip-seed --preview-feature', {
+      env: { ...process.env, DATABASE_URL: process.env.TEST_DATABASE_URL },
+      stdio: 'inherit',
+    });
 
-    // Grant privileges
-    console.log('Granting privileges...');
-    execSync(
-      'psql -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE guilt_free_goods_test TO gfg_user;"'
-    );
+    // Add test data
+    await prisma.user.create({
+      data: {
+        email: 'test@example.com',
+        password: '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LHZzpXQNR7ZRbh2ye', // 'password123'
+        name: 'Test User',
+      },
+    });
 
-    // Run migrations
-    console.log('Running migrations...');
-    execSync('npx prisma migrate deploy');
+    await prisma.category.create({
+      data: {
+        name: 'Test Category',
+        description: 'A test category',
+      },
+    });
 
-    // Seed test data
-    console.log('Seeding test data...');
-    execSync('npx prisma db seed');
-
-    console.log('Test database setup complete!');
+    console.log('Test database setup complete');
   } catch (error) {
     console.error('Error setting up test database:', error);
     process.exit(1);
@@ -38,25 +36,32 @@ async function setupTestDatabase() {
   }
 }
 
-async function teardownTestDatabase() {
+async function teardownTestDb() {
   try {
-    console.log('Tearing down test database...');
-    await prisma.$disconnect();
-    execSync('psql -U postgres -c "DROP DATABASE IF EXISTS guilt_free_goods_test;"');
-    console.log('Test database teardown complete!');
+    // Clean up test data
+    await prisma.item.deleteMany();
+    await prisma.category.deleteMany();
+    await prisma.user.deleteMany();
+
+    console.log('Test database cleanup complete');
   } catch (error) {
-    console.error('Error tearing down test database:', error);
+    console.error('Error cleaning up test database:', error);
+    process.exit(1);
+  } finally {
+    await prisma.$disconnect();
+  }
+}
+
+if (require.main === module) {
+  const action = process.argv[2];
+  if (action === 'setup') {
+    setupTestDb();
+  } else if (action === 'teardown') {
+    teardownTestDb();
+  } else {
+    console.error('Please specify either "setup" or "teardown"');
     process.exit(1);
   }
 }
 
-// Handle command line arguments
-const command = process.argv[2];
-if (command === 'setup') {
-  setupTestDatabase();
-} else if (command === 'teardown') {
-  teardownTestDatabase();
-} else {
-  console.error('Please specify either "setup" or "teardown"');
-  process.exit(1);
-} 
+export { setupTestDb, teardownTestDb }; 

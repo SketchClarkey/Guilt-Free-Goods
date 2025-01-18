@@ -1,76 +1,108 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '../auth/[...nextauth]';
-import prisma from '@/lib/prisma';
+import { getServerSession } from 'next-auth';
+import { PrismaClient, ItemCondition } from '@prisma/client';
 import { z } from 'zod';
+import { authOptions } from '../auth/[...nextauth]';
 
-// Validation schema for creating an item
-const createItemSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
+const prisma = new PrismaClient();
+
+const itemSchema = z.object({
+  title: z.string().min(1),
   description: z.string().optional(),
-  condition: z.enum(['NEW', 'LIKE_NEW', 'VERY_GOOD', 'GOOD', 'ACCEPTABLE', 'FOR_PARTS']),
-  brand: z.string().optional(),
-  sku: z.string().optional(),
+  condition: z.nativeEnum(ItemCondition),
+  price: z.number().min(0),
   categoryId: z.string(),
 });
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const session = await getServerSession(req, res, authOptions);
 
-  if (!session) {
+  if (!session?.user?.id) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
-  switch (req.method) {
-    case 'GET':
-      try {
+  try {
+    switch (req.method) {
+      case 'GET':
         const items = await prisma.item.findMany({
-          where: {
-            userId: session.user.id,
-          },
-          include: {
-            category: true,
-            images: {
-              where: { isPrimary: true },
-              take: 1,
-            },
-          },
+          where: { userId: session.user.id },
+          include: { category: true },
         });
         return res.status(200).json(items);
-      } catch (error) {
-        console.error('Error fetching items:', error);
-        return res.status(500).json({ error: 'Error fetching items' });
-      }
 
-    case 'POST':
-      try {
-        const validatedData = createItemSchema.parse(req.body);
-        
-        const item = await prisma.item.create({
+      case 'POST':
+        const validatedData = itemSchema.parse(req.body);
+        const newItem = await prisma.item.create({
           data: {
-            ...validatedData,
+            title: validatedData.title,
+            description: validatedData.description,
+            condition: validatedData.condition,
+            price: validatedData.price,
+            categoryId: validatedData.categoryId,
             userId: session.user.id,
-            status: 'DRAFT',
           },
-          include: {
-            category: true,
-          },
+          include: { category: true },
         });
-        
-        return res.status(201).json(item);
-      } catch (error) {
-        if (error instanceof z.ZodError) {
-          return res.status(400).json({ error: error.errors });
-        }
-        console.error('Error creating item:', error);
-        return res.status(500).json({ error: 'Error creating item' });
-      }
+        return res.status(201).json(newItem);
 
-    default:
-      res.setHeader('Allow', ['GET', 'POST']);
-      return res.status(405).json({ error: `Method ${req.method} Not Allowed` });
+      case 'PUT':
+        const { id } = req.query;
+        if (!id || typeof id !== 'string') {
+          return res.status(400).json({ error: 'Invalid item ID' });
+        }
+
+        const existingItem = await prisma.item.findFirst({
+          where: { id, userId: session.user.id },
+        });
+
+        if (!existingItem) {
+          return res.status(404).json({ error: 'Item not found' });
+        }
+
+        const updatedData = itemSchema.partial().parse(req.body);
+        const updatedItem = await prisma.item.update({
+          where: { id },
+          data: {
+            title: updatedData.title,
+            description: updatedData.description,
+            condition: updatedData.condition,
+            price: updatedData.price,
+            categoryId: updatedData.categoryId,
+          },
+          include: { category: true },
+        });
+        return res.status(200).json(updatedItem);
+
+      case 'DELETE':
+        const itemId = req.query.id;
+        if (!itemId || typeof itemId !== 'string') {
+          return res.status(400).json({ error: 'Invalid item ID' });
+        }
+
+        const itemToDelete = await prisma.item.findFirst({
+          where: { id: itemId, userId: session.user.id },
+        });
+
+        if (!itemToDelete) {
+          return res.status(404).json({ error: 'Item not found' });
+        }
+
+        await prisma.item.delete({
+          where: { id: itemId },
+        });
+        return res.status(200).json({ message: 'Item deleted successfully' });
+
+      default:
+        res.setHeader('Allow', ['GET', 'POST', 'PUT', 'DELETE']);
+        return res.status(405).json({ error: `Method ${req.method} Not Allowed` });
+    }
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: error.errors });
+    }
+    console.error('Items API Error:', error);
+    return res.status(500).json({ error: 'Internal Server Error' });
+  } finally {
+    await prisma.$disconnect();
   }
 } 

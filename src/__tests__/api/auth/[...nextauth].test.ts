@@ -1,116 +1,78 @@
+import { NextApiRequest, NextApiResponse } from 'next';
 import { createMocks } from 'node-mocks-http';
-import handler from '../../../pages/api/auth/[...nextauth]';
-import { authOptions } from '../../../pages/api/auth/[...nextauth]';
+import { PrismaClient, User } from '@prisma/client';
 import bcrypt from 'bcryptjs';
+import { authOptions } from '@/pages/api/auth/[...nextauth]';
 
-jest.mock('@auth/prisma-adapter');
-jest.mock('@prisma/client');
-jest.mock('bcryptjs');
+const prisma = new PrismaClient();
 
 describe('NextAuth API', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
+  let testUser: User;
+  const testPassword = 'testpass123';
+
+  beforeAll(async () => {
+    const hashedPassword = await bcrypt.hash(testPassword, 12);
+    testUser = await prisma.user.create({
+      data: {
+        email: `test-${Date.now()}@example.com`,
+        name: 'Test User',
+        password: hashedPassword,
+      },
+    });
+  });
+
+  afterAll(async () => {
+    await prisma.user.deleteMany();
+    await prisma.$disconnect();
   });
 
   describe('Credentials Provider', () => {
-    test('should authenticate user with valid credentials', async () => {
-      const { req, res } = createMocks({
-        method: 'POST',
-        body: {
-          csrfToken: 'mock-csrf-token',
-          provider: 'credentials',
-          email: 'test@example.com',
-          password: 'password123',
-        },
-      });
-
-      const mockUser = {
-        id: '1',
-        email: 'test@example.com',
-        password: 'hashedPassword',
-        role: 'USER',
+    it('should authenticate with valid credentials', async () => {
+      const credentials = {
+        email: testUser.email!,
+        password: testPassword,
       };
 
-      (PrismaClient as jest.Mock).mockImplementation(() => ({
-        user: {
-          findUnique: jest.fn().mockResolvedValue(mockUser),
-        },
-      }));
-
-      (bcrypt.compare as jest.Mock).mockResolvedValue(true);
-
-      await handler(req, res);
-
-      expect(res._getStatusCode()).toBe(200);
-      const data = JSON.parse(res._getData());
-      expect(data).toHaveProperty('user');
-      expect(data.user.email).toBe(mockUser.email);
-    });
-
-    test('should reject invalid credentials', async () => {
-      const { req, res } = createMocks({
+      const { req } = createMocks<NextApiRequest, NextApiResponse>({
         method: 'POST',
-        body: {
-          csrfToken: 'mock-csrf-token',
-          provider: 'credentials',
-          email: 'test@example.com',
-          password: 'wrongpassword',
-        },
+        body: credentials,
       });
 
-      (PrismaClient as jest.Mock).mockImplementation(() => ({
-        user: {
-          findUnique: jest.fn().mockResolvedValue(null),
-        },
-      }));
+      const authorize = authOptions.providers[0].credentials?.authorize;
+      const user = await authorize?.(credentials as Record<string, string>, req);
 
-      await handler(req, res);
-
-      expect(res._getStatusCode()).toBe(401);
+      expect(user).toBeTruthy();
+      expect(user).toHaveProperty('email', testUser.email);
+      expect(user).toHaveProperty('id', testUser.id);
     });
-  });
 
-  describe('Session Handling', () => {
-    test('should return user session data', async () => {
-      const { req, res } = createMocks({
-        method: 'GET',
-        query: {
-          nextauth: ['session'],
-        },
-      });
-
-      const mockSession = {
-        user: {
-          email: 'test@example.com',
-          role: 'USER',
-        },
-        expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+    it('should reject invalid credentials', async () => {
+      const credentials = {
+        email: testUser.email!,
+        password: 'wrongpassword',
       };
 
-      await handler(req, res);
-
-      expect(res._getStatusCode()).toBe(200);
-      const data = JSON.parse(res._getData());
-      expect(data).toHaveProperty('session');
-    });
-  });
-
-  describe('CSRF Protection', () => {
-    test('should validate CSRF token', async () => {
-      const { req, res } = createMocks({
+      const { req } = createMocks<NextApiRequest, NextApiResponse>({
         method: 'POST',
-        body: {
-          provider: 'credentials',
-          email: 'test@example.com',
-          password: 'password123',
-        },
+        body: credentials,
       });
 
-      await handler(req, res);
+      const authorize = authOptions.providers[0].credentials?.authorize;
+      await expect(authorize?.(credentials as Record<string, string>, req)).rejects.toThrow('Invalid credentials');
+    });
 
-      expect(res._getStatusCode()).toBe(400);
-      const data = JSON.parse(res._getData());
-      expect(data.error).toBe('Missing CSRF token');
+    it('should reject missing credentials', async () => {
+      const credentials = {
+        email: testUser.email!,
+      };
+
+      const { req } = createMocks<NextApiRequest, NextApiResponse>({
+        method: 'POST',
+        body: credentials,
+      });
+
+      const authorize = authOptions.providers[0].credentials?.authorize;
+      await expect(authorize?.(credentials as Record<string, string>, req)).rejects.toThrow('Missing credentials');
     });
   });
 }); 

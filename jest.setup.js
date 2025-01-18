@@ -1,33 +1,24 @@
-import '@testing-library/jest-dom';
+require('@testing-library/jest-dom');
+const { TextEncoder, TextDecoder } = require('util');
 
-// Mock Next.js router
-jest.mock('next/router', () => ({
-  useRouter: () => ({
-    push: jest.fn(),
-    replace: jest.fn(),
-    prefetch: jest.fn(),
-    query: {},
-  }),
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
+
+jest.mock('next-auth/jwt', () => ({
+  getToken: jest.fn(),
 }));
 
-// Mock next-auth
-jest.mock('next-auth/react', () => ({
-  useSession: jest.fn(() => ({
-    data: null,
-    status: 'unauthenticated',
-  })),
-  signIn: jest.fn(),
-  signOut: jest.fn(),
-  getSession: jest.fn(),
+jest.mock('next-auth', () => ({
+  ...jest.requireActual('next-auth'),
+  getServerSession: jest.fn(),
 }));
 
-// Global fetch mock
-global.fetch = jest.fn();
+jest.mock('bcryptjs', () => ({
+  compare: jest.fn().mockResolvedValue(true),
+  hash: jest.fn().mockResolvedValue('hashedpassword'),
+}));
 
-// Suppress console errors during tests
-console.error = jest.fn();
-
-// Clean up after each test
-afterEach(() => {
+// Reset all mocks before each test
+beforeEach(() => {
   jest.clearAllMocks();
 }); 

@@ -48,10 +48,14 @@ model User {
   password      String?
   image         String?
   role          UserRole  @default(USER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
   accounts      Account[]
   sessions      Session[]
   items         Item[]
   listings      Listing[]
+  passwordResets PasswordReset[]
 }
 
 model VerificationToken {
@@ -62,6 +66,16 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
+model PasswordReset {
+  id        String    @id @default(cuid())
+  token     String    @unique
+  expires   DateTime
+  used      Boolean   @default(false)
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+}
+
 enum UserRole {
   USER
   ADMIN
@@ -70,71 +84,61 @@ enum UserRole {
 model Item {
   id          String      @id @default(cuid())
   title       String
-  description String?     @db.Text
-  condition   Condition
+  description String?
+  condition   ItemCondition
   brand       String?
   sku         String?     @unique
+  price       Float
+  status      ItemStatus  @default(DRAFT)
+  userId      String
+  categoryId  String
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
-  userId      String
+
   user        User        @relation(fields: [userId], references: [id])
-  categoryId  String
   category    Category    @relation(fields: [categoryId], references: [id])
   images      Image[]
   listings    Listing[]
   prices      Price[]
-  status      ItemStatus  @default(DRAFT)
-
-  @@index([userId])
-  @@index([categoryId])
 }
 
 model Category {
   id          String    @id @default(cuid())
   name        String    @unique
-  description String?   @db.Text
+  description String?
   parentId    String?
-  parent      Category? @relation("CategoryHierarchy", fields: [parentId], references: [id])
-  children    Category[] @relation("CategoryHierarchy")
-  items       Item[]
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
-  @@index([parentId])
+  parent      Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children    Category[] @relation("CategoryHierarchy")
+  items       Item[]
 }
 
 model Image {
   id          String    @id @default(cuid())
   url         String
-  itemId      String
-  item        Item      @relation(fields: [itemId], references: [id], onDelete: Cascade)
   isPrimary   Boolean   @default(false)
-  order       Int       @default(0)
-  metadata    Json?
+  itemId      String
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
-  @@index([itemId])
+  item        Item      @relation(fields: [itemId], references: [id])
 }
 
 model Listing {
-  id          String         @id @default(cuid())
+  id          String    @id @default(cuid())
+  platform    String
+  externalId  String?
+  status      String
+  url         String?
   itemId      String
-  item        Item          @relation(fields: [itemId], references: [id])
   userId      String
-  user        User          @relation(fields: [userId], references: [id])
-  platform    Platform
-  status      ListingStatus @default(DRAFT)
-  externalId  String?       // ID on the platform (e.g., eBay listing ID)
-  price       Decimal       @db.Decimal(10, 2)
-  currency    String        @default("AUD")
-  quantity    Int           @default(1)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
-  @@index([itemId])
-  @@index([userId])
-  @@unique([platform, externalId])
+  item        Item      @relation(fields: [itemId], references: [id])
+  user        User      @relation(fields: [userId], references: [id])
 }
 
 model Price {
@@ -149,7 +153,7 @@ model Price {
   @@index([itemId])
 }
 
-enum Condition {
+enum ItemCondition {
   NEW
   LIKE_NEW
   VERY_GOOD
